@@ -2,7 +2,7 @@
 "use strict";
 
 import express = require("express");
-const dojot_libs = require('dojot-libs');
+import dojotLibs = require("dojot-libs");
 import { InvalidTokenError } from "./InvalidTokenError";
 import { UnauthorizedError } from "./UnauthorizedError";
 
@@ -38,8 +38,8 @@ function authParse(req: IAuthRequest, res: express.Response, next: express.NextF
 
   const token = rawToken!.split(".");
   if (token.length !== 3) {
-    dojot_libs.logger.error("Got invalid request: token is malformed.", {filename: "auth"});
-    dojot_libs.logger.error(`Token is: ${rawToken}`, {filename: "auth"});
+    dojotLibs.logger.error("Got invalid request: token is malformed.", {filename: "auth"});
+    dojotLibs.logger.error(`Token is: ${rawToken}`, {filename: "auth"});
     res.status(401).send(new InvalidTokenError());
     return;
   }
@@ -55,13 +55,13 @@ function authParse(req: IAuthRequest, res: express.Response, next: express.NextF
 function authEnforce(req: IAuthRequest, res: express.Response, next: express.NextFunction) {
   if (req.user === undefined || req.user!.trim() === "" ) {
     // valid token must be supplied
-    dojot_libs.logger.error("Got invalid request: user is not defined in token.", {filename: "auth"});
-    dojot_libs.logger.error(`Token is: ${req.header("authorization")}`, {filename: "auth"});
+    dojotLibs.logger.error("Got invalid request: user is not defined in token.", {filename: "auth"});
+    dojotLibs.logger.error(`Token is: ${req.header("authorization")}`, {filename: "auth"});
     res.status(401).send(new UnauthorizedError());
   } else if (req.service === undefined || req.service!.trim() === "" ) {
     // valid token must be supplied
-    dojot_libs.logger.error("Got invalid request: service is not defined in token.", {filename: "auth"});
-    dojot_libs.logger.error(`Token is: ${req.header("authorization")}`, {filename: "auth"});
+    dojotLibs.logger.error("Got invalid request: service is not defined in token.", {filename: "auth"});
+    dojotLibs.logger.error(`Token is: ${req.header("authorization")}`, {filename: "auth"});
     res.status(401).send(new UnauthorizedError());
   } else {
     next();

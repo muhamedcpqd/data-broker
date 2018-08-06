@@ -4,7 +4,7 @@
 import kafka = require("kafka-node");
 import util = require("util");
 import { KafkaConsumer } from "./consumer";
-const dojot_libs = require('dojot-libs');
+import dojotLibs = require("dojot-libs");
 import { KafkaProducer } from "./producer";
 import tools = require("./simple-tools");
 
@@ -42,7 +42,8 @@ interface IRegisteredSubscriptions {
 const operators = ["==", "!=", ">=", "<=", "~=", ">", "<" ];
 
 function evaluateLogicTest(op1: any, operator: string, op2: string): boolean {
-  dojot_libs.logger.debug(`Evaluating logic test: ${op1} ${operator} ${op2}.`, {filename: "subscription-engine"});
+  dojotLibs.logger.debug(`Evaluating logic test: ${op1} ${operator} ${op2}.`, 
+  {filename: "subscription-engine"});
   // There"s something here
   switch (operator) {
     case "==":
@@ -64,7 +65,8 @@ function evaluateLogicTest(op1: any, operator: string, op2: string): boolean {
 }
 
 function evaluateLogicCondition(condition: string, data: any) {
-  dojot_libs.logger.debug("Evaluating logic condition...", {filename: "subscription-engine"});
+  dojotLibs.logger.debug("Evaluating logic condition...", 
+  {filename: "subscription-engine"});
   let ret = true;
 
   const logicTests = tools.tokenize(condition, ";");
@@ -76,7 +78,8 @@ function evaluateLogicCondition(condition: string, data: any) {
         continue;
       }
       ret = evaluateLogicTest(data[logicTokens[0]].value, operator, logicTokens[1]);
-      dojot_libs.logger.debug(`Condition evaluation result so far: ${ret}.`, {filename: "subscription-engine"});
+      dojotLibs.logger.debug(`Condition evaluation result so far: ${ret}.`, 
+      {filename: "subscription-engine"});
       if (ret === false) {
         break;
       }
@@ -86,27 +89,34 @@ function evaluateLogicCondition(condition: string, data: any) {
     }
   }
 
-  dojot_libs.logger.debug("... logic condition was evaluated.", {filename: "subscription-engine"});
+  dojotLibs.logger.debug("... logic condition was evaluated.", 
+  {filename: "subscription-engine"});
   return ret;
 }
 
 function evaluateMetaCondition(condition: string, data: any) {
   const ret = true;
-  dojot_libs.logger.debug("Evaluation of meta-data is not yet implemented.", {filename: "subscription-engine"});
-  dojot_libs.logger.debug("Parameters are:", {filename: "subscription-engine"});
-  dojot_libs.logger.debug(`Condition: ${condition}`, {filename: "subscription-engine"});
-  dojot_libs.logger.debug(`Data: ${util.inspect(data, { depth: null})}`, {filename: "subscription-engine"});
+  dojotLibs.logger.debug("Evaluation of meta-data is not yet implemented.", 
+  {filename: "subscription-engine"});
+
+  dojotLibs.logger.debug("Parameters are:", {filename: "subscription-engine"});
+  dojotLibs.logger.debug(`Condition: ${condition}`, {filename: "subscription-engine"});
+  dojotLibs.logger.debug(`Data: ${util.inspect(data, { depth: null})}`, 
+  {filename: "subscription-engine"});
+
   return ret;
 }
 
 function evaluateGeoCondition(georel: string, geometry: string, coords: string, data: any) {
   const ret = true;
-  dojot_libs.logger.debug("Evaluation of meta-data is not yet implemented.", {filename: "subscription-engine"});
-  dojot_libs.logger.debug("Parameters are:", {filename: "subscription-engine"});
-  dojot_libs.logger.debug(`georel: ${georel}`, {filename: "subscription-engine"});
-  dojot_libs.logger.debug(`geometry: ${geometry}`, {filename: "subscription-engine"});
-  dojot_libs.logger.debug(`coords: ${coords}`, {filename: "subscription-engine"});
-  dojot_libs.logger.debug(`Data: ${util.inspect(data, { depth: null})}`, {filename: "subscription-engine"});
+  dojotLibs.logger.debug("Evaluation of meta-data is not yet implemented.", 
+  {filename: "subscription-engine"});
+  dojotLibs.logger.debug("Parameters are:", {filename: "subscription-engine"});
+  dojotLibs.logger.debug(`georel: ${georel}`, {filename: "subscription-engine"});
+  dojotLibs.logger.debug(`geometry: ${geometry}`, {filename: "subscription-engine"});
+  dojotLibs.logger.debug(`coords: ${coords}`, {filename: "subscription-engine"});
+  dojotLibs.logger.debug(`Data: ${util.inspect(data, { depth: null})}`, 
+  {filename: "subscription-engine"});
   return ret;
 }
 
@@ -161,12 +171,16 @@ function checkSubscriptions(obj: Event, subscriptions: Subscription[]): IAction[
               // TODO Gather all data from the device - the condition might use a few
               // variables that were not registered with this subscription
               if (evaluateCondition(subscription.subject.condition!.expression, obj.attrs)) {
-                dojot_libs.logger.debug(`I should send something to ${subscription.notification.topic}`, {filename: "subscription-engine"});
+                dojotLibs.logger.debug(`I should send something to ${subscription.notification.topic}`, 
+                {filename: "subscription-engine"});
+                
                 actions.push(generateOutputData(obj, subscription.notification));
               }
             } else {
               // There is no condition to this subscription - it should be triggered
-              dojot_libs.logger.debug(`I should send something to ${subscription.notification.topic}`, {filename: "subscription-engine"});
+              dojotLibs.logger.debug(`I should send something to ${subscription.notification.topic}`, 
+              {filename: "subscription-engine"});
+              
               actions.push(generateOutputData(obj, subscription.notification));
             }
             break;
@@ -174,12 +188,16 @@ function checkSubscriptions(obj: Event, subscriptions: Subscription[]): IAction[
         }
       } else {
         // All attributes should evaluate this subscription
-        dojot_libs.logger.debug(`I should send something to ${subscription.notification.topic}`, {filename: "subscription-engine"});
+        dojotLibs.logger.debug(`I should send something to ${subscription.notification.topic}`, 
+        {filename: "subscription-engine"});
+        
         actions.push(generateOutputData(obj, subscription.notification));
       }
     } else {
       // This subscription will be triggered whenever a message is sent by this device
-      dojot_libs.logger.debug(`I should send something to ${subscription.notification.topic}`, {filename: "subscription-engine"});
+      dojotLibs.logger.debug(`I should send something to ${subscription.notification.topic}`, 
+      {filename: "subscription-engine"});
+      
       actions.push(generateOutputData(obj, subscription.notification));
     }
   }
@@ -196,7 +214,9 @@ class SubscriptionEngine {
   private registeredSubscriptions: IRegisteredSubscriptions;
 
   constructor() {
-    dojot_libs.logger.debug("Initializing subscription engine...", {filename: "subscription-engine"});
+    dojotLibs.logger.debug("Initializing subscription engine...", 
+    {filename: "subscription-engine"});
+
     this.producerReady = false;
     this.producer = new KafkaProducer(undefined, () => {
       this.producerReady = true;
@@ -214,31 +234,39 @@ class SubscriptionEngine {
 
   public handleEvent(err: any, message: kafka.Message | undefined) {
     if (err) {
-      dojot_libs.logger.error(`Subscriber reported error: ${err}`, {filename: "subscription-engine"});
+      dojotLibs.logger.error(`Subscriber reported error: ${err}`, 
+      {filename: "subscription-engine"});
       return;
     }
 
     if (message === undefined) {
-      dojot_libs.logger.error("Received an empty message.", {filename: "subscription-engine"});
+      dojotLibs.logger.error("Received an empty message.", 
+      {filename: "subscription-engine"});
       return;
     }
 
     if (this.producerReady === false) {
-      dojot_libs.logger.error("Got event before being ready to handle it, ignoring", {filename: "subscription-engine"});
+      dojotLibs.logger.error("Got event before being ready to handle it, ignoring", 
+      {filename: "subscription-engine"});
       return;
     }
 
     let data: string;
-    dojot_libs.logger.debug("New data arrived!", {filename: "subscription-engine"});
+    dojotLibs.logger.debug("New data arrived!", {filename: "subscription-engine"});
     try {
       data = JSON.parse(message.value);
-      dojot_libs.logger.debug(`Data: ${util.inspect(data, {depth: null})}`, {filename: "subscription-engine"});
+      dojotLibs.logger.debug(`Data: ${util.inspect(data, {depth: null})}`, 
+      {filename: "subscription-engine"});
+      
       this.processEvent(new Event(data));
     } catch (err) {
       if (err instanceof TypeError) {
-        dojot_libs.logger.error(`Received data is not a valid event: ${message.value}`), {filename: "subscription-engine"};
+        dojotLibs.logger.error(`Received data is not a valid event: ${message.value}`,
+        {filename: "subscription-engine"});
+
       } else if (err instanceof SyntaxError) {
-        dojot_libs.logger.error(`Failed to parse event as JSON: ${message.value}`, {filename: "subscription-engine"});
+        dojotLibs.logger.error(`Failed to parse event as JSON: ${message.value}`, 
+        {filename: "subscription-engine"});
       }
     }
   }
